@@ -31,7 +31,6 @@ class LoanResponse(BaseModel):
     user_id: int
     book_id: int
     loan_date: date
-    due_date: date
     return_date: date | None = None
 
 

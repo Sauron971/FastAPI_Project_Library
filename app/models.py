@@ -1,15 +1,19 @@
 # models.py
+import os
 from typing import Type
 
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Enum, Table
+from dotenv import load_dotenv
 
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Enum, Table
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 import enum
 
-DATABASE_URL = 'postgresql+psycopg2://postgres:123@localhost/library'
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
