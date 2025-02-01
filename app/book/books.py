@@ -6,8 +6,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.models import Author, Book, get_db
+from app.user.auth import check_admin
 
-router = APIRouter()
+router = APIRouter()  # admin router
 
 
 class BookCreate(BaseModel):
@@ -53,7 +54,7 @@ class BookResponse(BaseModel):
         }
 
 
-@router.post("/book/create", response_model=BookResponse)
+@router.post("/book/create", response_model=BookResponse, dependencies=[Depends(check_admin)])
 def create_book(book: BookCreate, db: Session = Depends(get_db)):
     try:
         db_authors = db.query(Author).filter(Author.id.in_(book.authors)).all()
@@ -145,7 +146,7 @@ def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     )
 
 
-@router.put("/book/update/{book_id}", response_model=BookResponse)
+@router.put("/book/update/{book_id}", response_model=BookResponse, dependencies=[Depends(check_admin)])
 def update_book_by_id(book_id: int, book: BookCreate, db: Session = Depends(get_db)):
     db_book = db.query(Book).filter(Book.id == book_id).first()
     if db_book is None:
@@ -190,7 +191,7 @@ def update_book_by_id(book_id: int, book: BookCreate, db: Session = Depends(get_
     )
 
 
-@router.delete("/book/delete/{book_id}", response_model=dict)
+@router.delete("/book/delete/{book_id}", response_model=dict, dependencies=[Depends(check_admin)])
 def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
     db_book = db.query(Book).filter(Book.id == book_id).first()
     if db_book is None:

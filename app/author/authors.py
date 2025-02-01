@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.models import Author, get_db
+from app.user.auth import check_admin
 
 router = APIRouter()
 
@@ -26,7 +27,7 @@ class AuthorResponse(AuthorCreate):
 
 
 # Create author
-@router.post("/author/create", response_model=AuthorResponse)
+@router.post("/author/create", response_model=AuthorResponse, dependencies=[Depends(check_admin)])
 def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
     try:
         db_author = Author(name=author.name, bio=author.bio, bday=author.bday)
@@ -55,7 +56,7 @@ def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
 
 
 # Update author by id
-@router.put("/author/update/{author_id}", response_model=AuthorResponse)
+@router.put("/author/update/{author_id}", response_model=AuthorResponse, dependencies=[Depends(check_admin)])
 def update_author_by_id(author_id: int, author: AuthorCreate, db: Session = Depends(get_db)):
     db_author = db.query(Author).filter(Author.id == author_id).first()
     if db_author is None:
@@ -70,7 +71,7 @@ def update_author_by_id(author_id: int, author: AuthorCreate, db: Session = Depe
 
 
 # Delete author by id
-@router.delete("/author/delete/{author_id}", response_model=dict)
+@router.delete("/author/delete/{author_id}", response_model=dict, dependencies=[Depends(check_admin)])
 def delete_author_by_id(author_id: int, db: Session = Depends(get_db)):
     db_author = db.query(Author).filter(Author.id == author_id).first()
     if db_author is None:

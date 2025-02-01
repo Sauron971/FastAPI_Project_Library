@@ -24,9 +24,7 @@
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="397d7c5e-bba3-4b2d-ba69-6105cd0f6c89" object-ref="schemas/public/tables/users" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="397d7c5e-bba3-4b2d-ba69-6105cd0f6c89" />
@@ -38,6 +36,7 @@
       </filter>
     </filter-actions>
     <filter-actions connection-id="397d7c5e-bba3-4b2d-ba69-6105cd0f6c89" dataset="public.books" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="397d7c5e-bba3-4b2d-ba69-6105cd0f6c89" dataset="public.loans" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
