@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import Optional
 
@@ -9,6 +10,7 @@ from app.models import Author, Book, get_db
 from app.user.auth import check_admin
 
 router = APIRouter()  # admin router
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
 
 class BookCreate(BaseModel):
@@ -66,6 +68,7 @@ def create_book(book: BookCreate, db: Session = Depends(get_db)):
         db.add(db_book)
         db.commit()
         db.refresh(db_book)
+        logging.info(f"Created book with ID: {db_book.id}")
         return db_book
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -179,6 +182,7 @@ def update_book_by_id(book_id: int, book: BookCreate, db: Session = Depends(get_
         )
         for loan in db_book.loans
     ]
+    logging.info(f"Updated book with ID: {db_book.id}")
     return BookResponse(
         id=db_book.id,
         title=db_book.title,
@@ -199,4 +203,5 @@ def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
 
     db.delete(db_book)
     db.commit()
+    logging.info(f"Deleted book with ID: {db_book.id}")
     return {"detail": "Delete book", "ID": str(db_book.id)}

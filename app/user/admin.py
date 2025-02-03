@@ -1,4 +1,6 @@
 # admin dashboard
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -7,6 +9,7 @@ from app.user.auth import UserResponse, UserUpdate, check_admin
 from app.user.jwt import get_password_hash
 
 router = APIRouter(dependencies=[Depends(check_admin)])
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
 
 @router.get("/admin/users/get", response_model=list[UserResponse])
@@ -26,6 +29,7 @@ def register_new_user(user: UserUpdate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    logging.info(f"Registered new user by admin, ID:{db_user.id}")
     return db_user
 
 
@@ -41,4 +45,5 @@ def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
     db_user.role = user.role
     db.commit()
     db.refresh(db_user)
+    logging.info(f"Updated user by admin, ID:{db_user.id}")
     return db_user
