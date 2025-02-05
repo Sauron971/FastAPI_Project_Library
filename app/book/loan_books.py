@@ -11,7 +11,8 @@ from app.user.auth import UserResponse, get_current_user
 from app.book.books import BookResponse
 
 router = APIRouter()
-logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+logging.basicConfig(filename='app.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
 
 class LoanCreate(BaseModel):
@@ -73,9 +74,3 @@ def return_book(book_id: int, current_user: User = Depends(get_current_user), db
     db.refresh(db_book)
     logging.info(f"{current_user.username} return the book with ID: {book_id}")
     return {"detail": "Returned book", "book_id": book_id, "user_id": current_user.id}
-
-
-
-
-
-

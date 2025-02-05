@@ -10,7 +10,8 @@ from app.models import Author, Book, get_db
 from app.user.auth import check_admin
 
 router = APIRouter()  # admin router
-logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+logging.basicConfig(filename='app.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
 
 class BookCreate(BaseModel):

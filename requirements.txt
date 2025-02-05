@@ -1,0 +1,8 @@
+fastapi[all]
+pydantic
+SQLAlchemy
+passlib
+python-dotenv
+jose
+uvicorn
+alembic

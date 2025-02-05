@@ -1,14 +1,12 @@
 # main.py
-import os
 
 from fastapi import FastAPI
 
-
 from app.author import authors
 from app.book import books
+from app.book import loan_books
 from app.models import init_db
 from app.user import auth, admin
-from app.book import loan_books
 
 
 def include_routers():

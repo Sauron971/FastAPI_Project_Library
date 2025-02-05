@@ -9,7 +9,8 @@ from app.user.auth import UserResponse, UserUpdate, check_admin
 from app.user.jwt import get_password_hash
 
 router = APIRouter(dependencies=[Depends(check_admin)])
-logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %('
+                                                                   'message)s')
 
 
 @router.get("/admin/users/get", response_model=list[UserResponse])

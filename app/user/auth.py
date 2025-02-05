@@ -1,12 +1,10 @@
-from typing import Optional
-
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
+from sqlalchemy.orm import Session
 
 from app.models import User, get_db, UserRole
 from app.user.jwt import *
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
