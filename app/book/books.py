@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import Optional
 
@@ -6,8 +7,11 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.models import Author, Book, get_db
+from app.user.auth import check_admin
 
-router = APIRouter()
+router = APIRouter()  # admin router
+logging.basicConfig(filename='app.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
 
 class BookCreate(BaseModel):
@@ -31,7 +35,6 @@ class LoanResponse(BaseModel):
     user_id: int
     book_id: int
     loan_date: date
-    due_date: date
     return_date: date | None = None
 
 
@@ -54,7 +57,7 @@ class BookResponse(BaseModel):
         }
 
 
-@router.post("/book/create", response_model=BookResponse)
+@router.post("/book/create", response_model=BookResponse, dependencies=[Depends(check_admin)])
 def create_book(book: BookCreate, db: Session = Depends(get_db)):
     try:
         db_authors = db.query(Author).filter(Author.id.in_(book.authors)).all()
@@ -66,6 +69,7 @@ def create_book(book: BookCreate, db: Session = Depends(get_db)):
         db.add(db_book)
         db.commit()
         db.refresh(db_book)
+        logging.info(f"Created book with ID: {db_book.id}")
         return db_book
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -146,7 +150,7 @@ def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     )
 
 
-@router.put("/book/update/{book_id}", response_model=BookResponse)
+@router.put("/book/update/{book_id}", response_model=BookResponse, dependencies=[Depends(check_admin)])
 def update_book_by_id(book_id: int, book: BookCreate, db: Session = Depends(get_db)):
     db_book = db.query(Book).filter(Book.id == book_id).first()
     if db_book is None:
@@ -179,6 +183,7 @@ def update_book_by_id(book_id: int, book: BookCreate, db: Session = Depends(get_
         )
         for loan in db_book.loans
     ]
+    logging.info(f"Updated book with ID: {db_book.id}")
     return BookResponse(
         id=db_book.id,
         title=db_book.title,
@@ -191,7 +196,7 @@ def update_book_by_id(book_id: int, book: BookCreate, db: Session = Depends(get_
     )
 
 
-@router.delete("/book/delete/{book_id}", response_model=dict)
+@router.delete("/book/delete/{book_id}", response_model=dict, dependencies=[Depends(check_admin)])
 def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
     db_book = db.query(Book).filter(Book.id == book_id).first()
     if db_book is None:
@@ -199,4 +204,5 @@ def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
 
     db.delete(db_book)
     db.commit()
+    logging.info(f"Deleted book with ID: {db_book.id}")
     return {"detail": "Delete book", "ID": str(db_book.id)}

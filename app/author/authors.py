@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,8 +6,11 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.models import Author, get_db
+from app.user.auth import check_admin
 
 router = APIRouter()
+logging.basicConfig(filename='app.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
 
 class AuthorCreate(BaseModel):
@@ -26,13 +30,14 @@ class AuthorResponse(AuthorCreate):
 
 
 # Create author
-@router.post("/author/create", response_model=AuthorResponse)
+@router.post("/author/create", response_model=AuthorResponse, dependencies=[Depends(check_admin)])
 def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
     try:
         db_author = Author(name=author.name, bio=author.bio, bday=author.bday)
         db.add(db_author)
         db.commit()
         db.refresh(db_author)
+        logging.info(f"Created new author with ID: {db_author.id}")
         return db_author
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -55,7 +60,7 @@ def get_author_by_id(author_id: int, db: Session = Depends(get_db)):
 
 
 # Update author by id
-@router.put("/author/update/{author_id}", response_model=AuthorResponse)
+@router.put("/author/update/{author_id}", response_model=AuthorResponse, dependencies=[Depends(check_admin)])
 def update_author_by_id(author_id: int, author: AuthorCreate, db: Session = Depends(get_db)):
     db_author = db.query(Author).filter(Author.id == author_id).first()
     if db_author is None:
@@ -66,11 +71,12 @@ def update_author_by_id(author_id: int, author: AuthorCreate, db: Session = Depe
     db_author.bday = author.bday
     db.commit()
     db.refresh(db_author)
+    logging.info(f"Updated author with ID: {db_author.id}")
     return db_author
 
 
 # Delete author by id
-@router.delete("/author/delete/{author_id}", response_model=dict)
+@router.delete("/author/delete/{author_id}", response_model=dict, dependencies=[Depends(check_admin)])
 def delete_author_by_id(author_id: int, db: Session = Depends(get_db)):
     db_author = db.query(Author).filter(Author.id == author_id).first()
     if db_author is None:
@@ -78,4 +84,5 @@ def delete_author_by_id(author_id: int, db: Session = Depends(get_db)):
 
     db.delete(db_author)
     db.commit()
+    logging.info(f"Deleted author with ID: {db_author.id}")
     return {"detail": "Delete author", "ID": str(db_author.id)}
