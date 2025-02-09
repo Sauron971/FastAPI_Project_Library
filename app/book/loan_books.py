@@ -43,6 +43,8 @@ def take_book(book_id: int, current_user: User = Depends(get_current_user), db: 
 
     user_loans = len(db.query(Loan).filter(Loan.user_id == current_user.id).all())
     db_book = db.query(Book).filter(Book.id == book_id).first()
+    if not db_book:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found.")
     copies = db_book.copies - 1
     if copies < 0:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough copies of books.")
